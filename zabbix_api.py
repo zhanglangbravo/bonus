@@ -250,15 +250,15 @@ class Zabbix(object):
         print result_data
         result = result_data['result']
         return result
-    def key_delete(self, key, params):
-        data = json.dumps({
-            "jsonrpc": "2.0",
-            "method": key + ".delete",
-            "params": params,
-            "auth": self.authID,
-            "id": 1
-        })
-        result_data = self.get_data(data)
-        print result_data
-        result = result_data['result']
-        return result
+   # def key_delete(self, key, params):
+   #     data = json.dumps({
+   #         "jsonrpc": "2.0",
+   #         "method": key + ".delete",
+   #         "params": params,
+   #         "auth": self.authID,
+   #         "id": 1
+   #     })
+   #     result_data = self.get_data(data)
+   #     print result_data
+   #     result = result_data['result']
+   #     return result
