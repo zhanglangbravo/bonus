@@ -1,0 +1,75 @@
+stages:
+  - test
+  - build
+  - deploy_integration
+  - deploy_staging
+  - deploy_production
+
+variables:
+  MYSQL_DATABASE: test
+  MYSQL_ALLOW_EMPTY_PASSWORD: yes
+  SEA_ENV: testing
+  DOCKER_HOST: tcp://dockerd:2375
+  IMAGE: registry.mydocker.com/devops/${CI_PROJECT_NAMESPACE}-${CI_PROJECT_NAME}
+
+before_script:
+   - IMAGE_TAG=${IMAGE}:${CI_COMMIT_SHA:0:8}
+
+#========================================= Unit Testing ================================================
+test_all:
+  image: python:3.7
+  stage: test
+  services:
+    - name: mysql:5.6
+      alias: mysql
+    - name: redis:4
+      alias: redis
+  before_script:
+    - pip install -U -r requirements.txt
+  script:
+    - flake8 app jobs
+    - sea test
+
+#========================================== Build Image =================================================
+build_image:
+  stage: build
+  only:
+    - master
+  tags:
+    - build
+  script:
+    - docker build -t ${IMAGE_TAG} -f Dockerfile .
+    - docker push ${IMAGE_TAG}
+
+
+deploy_rpc_integration:
+  stage: deploy_integration
+  only:
+    - master
+  tags:
+    - deploy-integration
+  script:
+    - kubectl -n xyz set image deploy/examples-rpc "app=${IMAGE_TAG}" --record
+
+deploy_staging:
+  stage: deploy_staging
+  only:
+    - master
+  tags:
+    - deploy-production
+  when: manual
+  script:
+    - kubectl -n xyz-staging set image deploy/examples-celery "app=${IMAGE_TAG}" --record
+    - kubectl -n xyz-staging set image deploy/examples-rpc "app=${IMAGE_TAG}" --record
+
+deploy_production:
+  stage: deploy_production
+  only:
+    - master
+  tags:
+    - deploy-production
+  when: manual
+  script:
+    - kubectl -n xyz set image deploy/examples-celery "app=${IMAGE_TAG}" --record
+    - kubectl -n xyz set image deploy/examples-rpc "app=${IMAGE_TAG}" --record
+
