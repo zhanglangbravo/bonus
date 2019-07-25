@@ -6,7 +6,6 @@ import requests
 from lxml import etree
 from test import ShellParse
 from zabbix_api import Zabbix
-
 def zabbix_server(token, ip, area):
     session = requests.Session()
     session.keep_alive = False
@@ -22,3 +21,5 @@ def zabbix_server(token, ip, area):
 zabbix = Zabbix('http://10.129.133.205/system/5fcb35fe60044b96935bb79e276c78c2/index.php', 'Admin', 'zabbix')
 token = zabbix.user_login('Admin', 'zabbix')
 zabbix_server(token, '10.129.133.205', '5fcb35fe60044b96935bb79e276c78c2')
+zabbix = Zabbix()
+host = zabbix.host_get_ids('lala')
