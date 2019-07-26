@@ -2,9 +2,9 @@
 
 import os
 import sys
+import time
 
 class ShellParse(object):
-
     @staticmethod
     def shell_parse(shells):
         items = list()
@@ -20,3 +20,4 @@ class ShellParse(object):
 
 
 print sys.version
+print sys.path
